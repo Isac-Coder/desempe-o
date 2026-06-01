@@ -1,0 +1,68 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Manager",
+      "email": "manager@empresa.com",
+      "password": "manager123",
+      "role": "MANAGER"
+    },
+    {
+      "id": 2,
+      "name": "Collaborator",
+      "email": "collaborator@empresa.com",
+      "password": "collab123",
+      "role": "COLLABORATOR"
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "name": "Portal interno de ventas",
+      "description": "Desarrollar una plataforma para seguimiento de clientes y ventas.",
+      "status": "En progreso",
+      "createdAt": "2026-05-15T08:30:00Z",
+      "responsible": "collaborator@empresa.com"
+    },
+    {
+      "id": 2,
+      "name": "Módulo de reportes",
+      "description": "Implementar reportes personalizados para los equipos de producto.",
+      "status": "En progreso",
+      "createdAt": "2026-05-20T10:15:00Z",
+      "responsible": "collaborator@empresa.com"
+    },
+    {
+      "name": "mau",
+      "description": "hi",
+      "status": "Completado",
+      "responsible": "collaborator@empresa.com",
+      "createdAt": "2026-06-01T16:48:10.672Z",
+      "id": 3
+    },
+    {
+      "name": "nico",
+      "description": "hi",
+      "status": "Completado",
+      "responsible": "collaborator@empresa.com",
+      "createdAt": "2026-06-01T16:49:12.847Z",
+      "id": 4
+    },
+    {
+      "name": "Gomitas Enchiladas",
+      "description": "Chamoy y tajin",
+      "status": "Completado",
+      "responsible": "collaborator@empresa.com",
+      "createdAt": "2026-06-01T18:16:57.943Z",
+      "id": 5
+    },
+    {
+      "name": "mrk",
+      "description": "maricon",
+      "status": "Planeado",
+      "responsible": "manager@empresa.com",
+      "createdAt": "2026-06-01T19:14:14.221Z",
+      "id": 6
+    }
+  ]
+}
