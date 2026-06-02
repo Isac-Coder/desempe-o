@@ -2,17 +2,45 @@ import { state, sessionKey, darkModeKey } from '../state/index.js';
 import { authenticate, getProjects, createProject, updateProject, deleteProject } from '../api/index.js';
 import { getStatusClass, formatDate, createStyledButton, clearElement } from '../utils/helpers.js';
 
-const app = document.getElementById('app');
-const logoutButton = document.getElementById('logoutButton');
-const darkModeToggle = document.getElementById('darkModeToggle');
-const loginTemplate = document.getElementById('loginView');
-const dashboardTemplate = document.getElementById('dashboardView');
-const projectFormTemplate = document.getElementById('projectFormView');
-const detailsTemplate = document.getElementById('detailsView');
+let app;
+let logoutButton;
+let darkModeToggle;
+let root;
 
 export function setupUI() {
-  logoutButton.addEventListener('click', handleLogout);
+  root = document.getElementById('app-root') || createAppShell();
+  root.innerHTML = '';
+
+  const header = document.createElement('header');
+  const title = document.createElement('h1');
+  title.textContent = 'Gestión de Proyectos Internos';
+
+  const headerActions = document.createElement('div');
+  headerActions.style.display = 'flex';
+  headerActions.style.gap = '16px';
+  headerActions.style.alignItems = 'center';
+
+  darkModeToggle = document.createElement('button');
+  darkModeToggle.id = 'darkModeToggle';
+  darkModeToggle.className = 'btn secondary';
+  darkModeToggle.title = 'Cambiar tema';
   darkModeToggle.addEventListener('click', toggleDarkMode);
+
+  logoutButton = document.createElement('button');
+  logoutButton.id = 'logoutButton';
+  logoutButton.className = 'btn secondary hidden';
+  logoutButton.textContent = 'Cerrar sesión';
+  logoutButton.addEventListener('click', handleLogout);
+
+  headerActions.append(darkModeToggle, logoutButton);
+  header.append(title, headerActions);
+
+  root.appendChild(header);
+
+  app = document.createElement('main');
+  app.id = 'app';
+  root.appendChild(app);
+
   updateDarkModeToggle();
 }
 
@@ -29,8 +57,39 @@ export async function render() {
   logoutButton.classList.remove('hidden');
 }
 
+function createAppShell() {
+  const container = document.createElement('div');
+  container.id = 'app-root';
+  container.className = 'app-shell';
+  document.body.appendChild(container);
+  return container;
+}
+
+function createFragment(html) {
+  const template = document.createElement('template');
+  template.innerHTML = html.trim();
+  return template.content;
+}
+
 function renderLogin() {
-  const view = loginTemplate.content.cloneNode(true);
+  const view = createFragment(`
+    <section class="card centered">
+      <h2>Ingreso de usuario</h2>
+      <form id="loginForm" class="form-grid">
+        <label>
+          Correo electrónico
+          <input type="email" id="email" required placeholder="manager@empresa.com" />
+        </label>
+        <label>
+          Contraseña
+          <input type="password" id="password" required placeholder="********" />
+        </label>
+        <button type="submit" class="btn primary">Ingresar</button>
+      </form>
+      <div id="loginMessage" class="message"></div>
+    </section>
+  `);
+
   const form = view.querySelector('#loginForm');
   const message = view.querySelector('#loginMessage');
 
@@ -61,7 +120,36 @@ function renderLogin() {
 }
 
 async function renderDashboard() {
-  const view = dashboardTemplate.content.cloneNode(true);
+  const view = createFragment(`
+    <section class="toolbar">
+      <div>
+        <p id="userBadge"></p>
+        <p id="roleBadge"></p>
+      </div>
+      <div id="dashboardActions"></div>
+    </section>
+    <section class="filters-container">
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="🔍 Buscar proyectos por nombre..."
+          style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px;"
+        />
+      </div>
+      <div class="filter-controls">
+        <select id="statusFilter" style="padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); font-size: 14px;">
+          <option value="">Todos los estados</option>
+          <option value="Planeado">Planeado</option>
+          <option value="En progreso">En progreso</option>
+          <option value="Completado">Completado</option>
+        </select>
+      </div>
+    </section>
+    <section id="projectList"></section>
+    <section id="pagination"></section>
+  `);
+
   const userBadge = view.querySelector('#userBadge');
   const roleBadge = view.querySelector('#roleBadge');
   const dashboardActions = view.querySelector('#dashboardActions');
@@ -235,7 +323,42 @@ function changePage(page, paginationContainer) {
 
 function renderProjectForm(project = null) {
   app.innerHTML = '';
-  const view = projectFormTemplate.content.cloneNode(true);
+  const view = createFragment(`
+    <section class="card">
+      <h2 id="formTitle">Nuevo proyecto</h2>
+      <form id="projectForm" class="form-grid">
+        <label>
+          Nombre
+          <input type="text" id="projectName" required />
+        </label>
+        <label>
+          Descripción
+          <textarea id="projectDescription" rows="4" required></textarea>
+        </label>
+        <label>
+          Estado
+          <select id="projectStatus" required>
+            <option value="Planeado">Planeado</option>
+            <option value="En progreso">En progreso</option>
+            <option value="Completado">Completado</option>
+          </select>
+        </label>
+        <label>
+          Responsable
+          <select id="projectResponsible" required>
+            <option value="manager@empresa.com">Manager</option>
+            <option value="collaborator@empresa.com">Collaborator</option>
+          </select>
+        </label>
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Guardar proyecto</button>
+          <button type="button" id="cancelForm" class="btn secondary">Cancelar</button>
+        </div>
+      </form>
+      <div id="projectFormMessage" class="message"></div>
+    </section>
+  `);
+
   const form = view.querySelector('#projectForm');
   const message = view.querySelector('#projectFormMessage');
   const title = view.querySelector('#formTitle');
@@ -290,7 +413,22 @@ function renderProjectForm(project = null) {
 
 function renderDetails(project) {
   app.innerHTML = '';
-  const view = detailsTemplate.content.cloneNode(true);
+  const view = createFragment(`
+    <section class="card">
+      <h2>Detalle del proyecto</h2>
+      <div class="details-grid">
+        <p><strong>Nombre:</strong> <span id="detailName"></span></p>
+        <p><strong>Descripción:</strong> <span id="detailDescription"></span></p>
+        <p><strong>Estado:</strong> <span id="detailStatus"></span></p>
+        <p><strong>Responsable:</strong> <span id="detailResponsible"></span></p>
+        <p><strong>Creado:</strong> <span id="detailCreated"></span></p>
+      </div>
+      <div class="form-actions">
+        <button id="backToList" class="btn secondary">Volver a proyectos</button>
+      </div>
+    </section>
+  `);
+
   view.querySelector('#detailName').textContent = project.name;
   view.querySelector('#detailDescription').textContent = project.description;
   view.querySelector('#detailStatus').textContent = project.status;
