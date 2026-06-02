@@ -1,4 +1,4 @@
-import { API_URL } from '../state/index.js';
+import { API_URL } from '../states/state.js';
 
 export async function authenticate(email, password) {
   try {

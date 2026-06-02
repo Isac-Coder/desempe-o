@@ -1,5 +1,5 @@
-import { state, sessionKey, darkModeKey } from './state/index.js';
-import { setupUI, render } from './ui/index.js';
+import { state, sessionKey, darkModeKey } from './states/state.js';
+import { setupUI, render } from './ui/ui.js';
 
 function init() {
   const storedSession = localStorage.getItem(sessionKey);
