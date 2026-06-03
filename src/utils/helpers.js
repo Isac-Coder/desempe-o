@@ -12,6 +12,12 @@ export function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString('es-ES');
 }
 
+export function createFragment(html) {
+  const template = document.createElement('template');
+  template.innerHTML = html.trim();
+  return template.content.cloneNode(true);
+}
+
 export function createStyledButton(text, className, onClick) {
   const button = document.createElement('button');
   button.className = className;

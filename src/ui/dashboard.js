@@ -3,6 +3,8 @@ import { getProjects, createProject, updateProject, deleteProject } from '../api
 import { getStatusClass, formatDate, createStyledButton, clearElement, createFragment } from '../utils/helpers.js';
 
 export async function renderDashboard({ app, renderProjectForm, renderDetails }) {
+  app.innerHTML = '';
+
   const view = createFragment(`
     <section class="toolbar">
       <div>
