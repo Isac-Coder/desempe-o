@@ -1,26 +1,27 @@
 # Simulacro de Prueba de Desempeño
 
-Aplicación SPA para la gestión de proyectos internos con autenticación, roles y persistencia de sesión.
+Aplicación SPA para la gestión de proyectos internos con autenticación basada en roles y backend simulado.
 
-## Resumen
+## Descripción
 
-Esta aplicación ofrece un flujo completo de gestión de proyectos con:
-- Inicio de sesión de usuario
-- Roles diferenciados (`MANAGER` / `COLLABORATOR`)
-- Listado, creación, edición y eliminación de proyectos
-- Búsqueda, filtro por estado y paginación
-- Tema claro/oscuro
-- Persistencia de sesión en `localStorage`
+Esta aplicación permite administrar proyectos desde una única interfaz:
+- Login de usuario con sesión persistente en `localStorage`
+- Roles diferenciados: `MANAGER` y `COLLABORATOR`
+- CRUD de proyectos: crear, editar, eliminar y ver detalles
+- Filtros de búsqueda y estado, paginación local
+- Modo claro/oscuro con preferencia guardada
 
-## Tecnologías usadas
+## Tecnologías
 
-- Vite
-- JavaScript moderno (ES Modules)
-- `json-server` para el backend simulado
-- `concurrently` para ejecutar el frontend y el backend juntos
-- CSS personalizado para el diseño responsive
+- `Vite` como bundler y servidor de desarrollo
+- JavaScript moderno con módulos ES
+- `json-server` para backend RESTful simulado
+- `concurrently` para ejecutar frontend y backend en paralelo
+- CSS simple para diseño responsive
 
 ## Instalación
+
+Clona el repositorio e instala dependencias:
 
 ```bash
 npm install
@@ -28,20 +29,20 @@ npm install
 
 ## Ejecución
 
-Inicia el backend simulado y la aplicación Vite en paralelo:
+Ejecuta el backend y la app juntos:
 
 ```bash
 npm run start
 ```
 
-Si prefieres ejecutar los servicios por separado:
+También puedes ejecutarlos por separado:
 
 ```bash
 npm run json-server
 npm run dev
 ```
 
-Después abre la aplicación en el navegador:
+Abre el navegador en:
 
 ```text
 http://localhost:5173
@@ -57,64 +58,61 @@ http://localhost:5173
   - email: `collaborator@empresa.com`
   - password: `collab123`
 
-## Características principales
+## Funcionalidades
 
-- Autenticación con validación de usuario
-- Roles y permisos diferenciados:
+- Autenticación de usuario con validación en `json-server`
+- Roles y permisos:
   - `MANAGER`: puede ver, crear, editar y eliminar proyectos
-  - `COLLABORATOR`: puede ver proyectos asignados y editar solo algunos datos según permisos
-- CRUD completo de proyectos usando `json-server`
-- Estado global y persistencia de sesión en `localStorage`
-- Vista tipo dashboard con búsqueda, filtrado y paginación
-- Modo claro/oscuro con toggle en la interfaz
-- Uso de plantillas HTML en `index.html` para vistas dinámicas
+  - `COLLABORATOR`: puede ver proyectos asignados y modificar solo el estado de sus proyectos
+- Búsqueda en tiempo real por nombre o descripción
+- Filtro por estado del proyecto
+- Paginación local de resultados
+- Detalle de proyecto en pantalla dedicada
+- Modo claro/oscuro que se persiste para el usuario
 
-## Flujo de la aplicación
-
-1. El usuario ingresa sus credenciales en el formulario de login.
-2. El sistema valida el usuario contra `db.json`.
-3. Si el login es exitoso, se guarda la sesión en `localStorage`.
-4. Se muestra el dashboard con listado de proyectos.
-5. El usuario puede usar búsqueda, filtros y paginación.
-6. El manager puede abrir el formulario de proyecto para crear o editar.
-7. El usuario puede cerrar sesión con el botón de logout.
-
-## Estructura del proyecto
+## Arquitectura del proyecto
 
 ```text
 Simulacro-P-Desempeño/
 ├── README.md
 ├── package.json
-├── package-lock.json
 ├── db.json
 ├── index.html
-├── Prueba-desempeño-Simulacro.pdf
 ├── src/
 │   ├── main.js
 │   ├── styles.css
 │   ├── api/
-│   │   └── index.js
-│   ├── state/
-│   │   └── index.js
+│   │   └── api.js
+│   ├── states/
+│   │   └── state.js
 │   ├── ui/
-│   │   └── index.js
+│   │   ├── app.js
+│   │   ├── dashboard.js
+│   │   ├── login.js
+│   │   ├── projectDetails.js
+│   │   └── projectForm.js
 │   └── utils/
 │       └── helpers.js
 └── node_modules/
 ```
 
-- `package.json`: scripts y dependencias del proyecto.
-- `db.json`: datos de usuarios y proyectos usados por `json-server`.
-- `index.html`: estructura base, plantillas y contenedor de la SPA.
-- `src/main.js`: punto de entrada que inicializa la app.
-- `src/styles.css`: estilos principales de interfaz.
-- `src/api/index.js`: funciones de comunicación con el backend.
-- `src/state/index.js`: estado global, configuración y claves de `localStorage`.
-- `src/ui/index.js`: renderiza vistas, maneja eventos y controla la navegación interna.
-- `src/utils/helpers.js`: funciones utilitarias compartidas.
+- `src/main.js`: inicializa el estado y arranca la aplicación.
+- `src/states/state.js`: define el estado global compartido y las claves de `localStorage`.
+- `src/api/api.js`: funciones para consultar y modificar datos en el backend simulado.
+- `src/ui/app.js`: controla la UI principal, el header, el login y el dashboard.
+- `src/ui/dashboard.js`: renderiza el listado de proyectos, filtros y acciones por rol.
+- `src/ui/login.js`: muestra el formulario de inicio de sesión y maneja la validación.
+- `src/ui/projectForm.js`: formulario para crear o editar proyectos.
+- `src/ui/projectDetails.js`: muestra la vista de detalle de un proyecto.
+- `src/utils/helpers.js`: utilidades para manejar HTML dinámico y estilos.
 
-## Notas
+## Backend simulado
 
-- El backend funciona en `http://localhost:3000`.
-- La aplicación se sirve en `http://localhost:5173`.
-- Si agregas nuevas rutas o archivos, actualiza también la estructura del README.
+El backend se ejecuta en `http://localhost:3000` y usa `db.json` como fuente de datos.
+Contiene usuarios y proyectos que se consultan desde `src/api/api.js`.
+
+## Notas adicionales
+
+- El login persiste en `localStorage` para mantener sesión entre recargas.
+- Si cambias `db.json`, reinicia `json-server` para aplicar los cambios.
+- El código está dividido en módulos claros para facilitar mantenimiento.

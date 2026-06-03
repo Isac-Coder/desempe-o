@@ -1,5 +1,9 @@
 import { createFragment } from '../utils/helpers.js';
 
+/**
+ * Muestra la pantalla de detalle de un proyecto.
+ * Recibe el proyecto seleccionado y un callback para regresar al dashboard.
+ */
 export function renderDetails({ app, project, onBack }) {
   app.innerHTML = '';
 

@@ -1,3 +1,7 @@
+/**
+ * Muestra la pantalla de login para que el usuario pueda autenticarse.
+ * Valida campos y muestra mensajes de error en la misma vista.
+ */
 import { state } from '../states/state.js';
 import { authenticate } from '../api/api.js';
 import { createFragment } from '../utils/helpers.js';
@@ -25,6 +29,7 @@ export function renderLogin({ app, onLoginSuccess }) {
   const message = view.querySelector('#loginMessage');
 
   form.addEventListener('submit', async (event) => {
+    // Evita recargar la página y procesa el login en cliente.
     event.preventDefault();
     message.textContent = '';
 
@@ -42,6 +47,7 @@ export function renderLogin({ app, onLoginSuccess }) {
       return;
     }
 
+    // Almacenar el usuario en el estado global y propagar el login exitoso.
     state.currentUser = user;
     onLoginSuccess(user);
   });

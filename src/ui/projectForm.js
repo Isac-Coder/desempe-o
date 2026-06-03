@@ -1,3 +1,8 @@
+/**
+ * Muestra el formulario para crear o editar un proyecto.
+ * - Si se recibe un proyecto, carga los datos para edición.
+ * - Si no, inicializa un formulario en blanco para crear.
+ */
 import { state } from '../states/state.js';
 import { createProject, updateProject } from '../api/api.js';
 import { createStyledButton, createFragment } from '../utils/helpers.js';
@@ -46,20 +51,24 @@ export async function renderProjectForm({ app, project = null, onCancel, onSaved
   const title = view.querySelector('#formTitle');
   const cancelButton = view.querySelector('#cancelForm');
 
+  // El título cambia según si estamos creando o editando.
   title.textContent = project ? 'Editar proyecto' : 'Nuevo proyecto';
+
   if (project) {
     form.querySelector('#projectName').value = project.name;
     form.querySelector('#projectDescription').value = project.description;
     form.querySelector('#projectStatus').value = project.status;
     form.querySelector('#projectResponsible').value = project.responsible;
-    state.editingProjectId = project.id;
+    state.editingProjectId = project.id; // Marca que estamos editando.
   } else {
     state.editingProjectId = null;
     form.reset();
   }
 
+  // El botón cancelar vuelve al dashboard sin guardar cambios.
   cancelButton.addEventListener('click', onCancel);
 
+  // Maneja el envío del formulario de proyecto.
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     message.textContent = '';
@@ -79,8 +88,10 @@ export async function renderProjectForm({ app, project = null, onCancel, onSaved
 
     try {
       if (state.editingProjectId) {
+        // Actualiza proyecto existente.
         await updateProject(state.editingProjectId, projectData);
       } else {
+        // Crea un nuevo proyecto.
         await createProject(projectData);
       }
       onSaved();

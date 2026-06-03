@@ -1,3 +1,10 @@
+/**
+ * Inicializa la aplicación web.
+ * - Restaura la sesión de usuario desde localStorage.
+ * - Aplica el tema oscuro si estaba activado.
+ * - Inicializa los valores de búsqueda y paginación.
+ * - Configura la UI y renderiza la vista inicial.
+ */
 import { state, sessionKey, darkModeKey } from './states/state.js';
 import { setupUI, render } from './ui/app.js';
 

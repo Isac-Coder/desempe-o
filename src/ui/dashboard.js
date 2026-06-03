@@ -1,10 +1,16 @@
+/**
+ * Dashboard principal de la aplicación.
+ * Muestra proyectos, filtros, paginación y acciones según el rol de usuario.
+ */
 import { state } from '../states/state.js';
 import { getProjects, createProject, updateProject, deleteProject } from '../api/api.js';
 import { getStatusClass, formatDate, createStyledButton, clearElement, createFragment } from '../utils/helpers.js';
 
 export async function renderDashboard({ app, renderProjectForm, renderDetails }) {
+  // Limpiar cualquier contenido anterior al renderizar el dashboard.
   app.innerHTML = '';
 
+  // Construcción del contenedor de la vista principal.
   const view = createFragment(`
     <section class="toolbar">
       <div>
@@ -35,6 +41,7 @@ export async function renderDashboard({ app, renderProjectForm, renderDetails })
     <section id="pagination"></section>
   `);
 
+  // Referencias a los elementos necesarios para interactuar con la vista.
   const userBadge = view.querySelector('#userBadge');
   const roleBadge = view.querySelector('#roleBadge');
   const dashboardActions = view.querySelector('#dashboardActions');
@@ -43,11 +50,13 @@ export async function renderDashboard({ app, renderProjectForm, renderDetails })
   const statusFilter = view.querySelector('#statusFilter');
   const pagination = view.querySelector('#pagination');
 
+  // Mostrar información del usuario y restaurar filtros guardados.
   userBadge.textContent = `Usuario: ${state.currentUser.name} (${state.currentUser.email})`;
   roleBadge.textContent = `Rol: ${state.currentUser.role}`;
   searchInput.value = state.searchQuery;
   statusFilter.value = state.statusFilter;
 
+  // Mostrar botón de creación solo para managers.
   if (state.currentUser.role === 'MANAGER') {
     const createButton = createStyledButton('Crear proyecto', 'btn primary', () => {
       renderProjectForm({
@@ -60,18 +69,21 @@ export async function renderDashboard({ app, renderProjectForm, renderDetails })
     dashboardActions.appendChild(createButton);
   }
 
+  // Botón de recarga para refrescar la lista de proyectos.
   const refreshButton = createStyledButton('Actualizar proyectos', 'btn secondary', () => {
     state.currentPage = 1;
     loadProjects(projectList, pagination, { app, renderProjectForm, renderDetails });
   });
   dashboardActions.appendChild(refreshButton);
 
+  // Filtrar resultados en tiempo real según el texto de búsqueda.
   searchInput.addEventListener('input', (e) => {
     state.searchQuery = e.target.value.toLowerCase();
     state.currentPage = 1;
     loadProjects(projectList, pagination, { app, renderProjectForm, renderDetails });
   });
 
+  // Filtrar por estado al cambiar la selección.
   statusFilter.addEventListener('change', (e) => {
     state.statusFilter = e.target.value;
     state.currentPage = 1;
@@ -79,16 +91,23 @@ export async function renderDashboard({ app, renderProjectForm, renderDetails })
   });
 
   app.appendChild(view);
+
+  // Cargar los proyectos inicialmente después de renderizar la vista.
   await loadProjects(projectList, pagination, { app, renderProjectForm, renderDetails });
 }
 
+/**
+ * Carga la lista de proyectos desde la API y aplica filtros locales.
+ */
 async function loadProjects(container, paginationContainer, callbacks) {
+  // Mensaje de carga mientras se solicita la API.
   container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--muted);">Cargando proyectos...</p>';
 
   try {
     state.allProjects = await getProjects(state.currentUser.role, state.currentUser.email);
     let projects = state.allProjects;
 
+    // Aplica búsqueda por nombre o descripción.
     if (state.searchQuery) {
       projects = projects.filter((project) =>
         project.name.toLowerCase().includes(state.searchQuery) ||
@@ -96,16 +115,19 @@ async function loadProjects(container, paginationContainer, callbacks) {
       );
     }
 
+    // Aplica filtro de estado si existe.
     if (state.statusFilter) {
       projects = projects.filter((project) => project.status === state.statusFilter);
     }
 
+    // Mostrar mensaje cuando no hay resultados.
     if (!projects.length) {
       container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--muted);">No hay proyectos disponibles.</p>';
       paginationContainer.innerHTML = '';
       return;
     }
 
+    // Calcula la paginación local sobre los proyectos filtrados.
     const totalPages = Math.ceil(projects.length / state.itemsPerPage);
     const startIndex = (state.currentPage - 1) * state.itemsPerPage;
     const pageItems = projects.slice(startIndex, startIndex + state.itemsPerPage);
@@ -117,6 +139,9 @@ async function loadProjects(container, paginationContainer, callbacks) {
   }
 }
 
+/**
+ * Renderiza las tarjetas de proyecto y las acciones disponibles.
+ */
 function renderProjectCards(container, projects, paginationContainer, totalPages, { app, renderProjectForm, renderDetails }) {
   clearElement(container);
 
@@ -139,8 +164,10 @@ function renderProjectCards(container, projects, paginationContainer, totalPages
     const actionsDiv = document.createElement('div');
     actionsDiv.className = 'project-actions';
 
+    // Acción común para ver detalle de proyecto.
     actionsDiv.appendChild(createStyledButton('👁️ Detalle', 'btn secondary', () => renderDetails({ app, project, onBack: () => renderDashboard({ app, renderProjectForm, renderDetails }) })));
 
+    // Acciones adicionales solo para managers.
     if (state.currentUser.role === 'MANAGER') {
       actionsDiv.appendChild(createStyledButton('✏️ Editar', 'btn secondary', () => renderProjectForm({
         app,
@@ -151,6 +178,7 @@ function renderProjectCards(container, projects, paginationContainer, totalPages
       actionsDiv.appendChild(createStyledButton('🗑️ Eliminar', 'btn danger', () => handleDelete(project.id, container, paginationContainer, { app, renderProjectForm, renderDetails })));
     }
 
+    // Los colaboradores pueden cambiar el estado solo de sus proyectos.
     if (state.currentUser.role === 'COLLABORATOR' && project.responsible === state.currentUser.email) {
       const statusWrapper = document.createElement('div');
       statusWrapper.style.display = 'flex';
@@ -186,6 +214,9 @@ function renderProjectCards(container, projects, paginationContainer, totalPages
   renderPagination(paginationContainer, totalPages, projects.length, { app, renderProjectForm, renderDetails });
 }
 
+/**
+ * Renderiza los controles de paginación y navegación.
+ */
 function renderPagination(container, totalPages, totalItems, callbacks) {
   clearElement(container);
 
@@ -211,6 +242,9 @@ function renderPagination(container, totalPages, totalItems, callbacks) {
   container.appendChild(nextBtn);
 }
 
+/**
+ * Cambia la página actual y vuelve a cargar los proyectos con la nueva página.
+ */
 function changePage(page, paginationContainer, callbacks) {
   state.currentPage = page;
   const projectList = document.querySelector('#projectList');
@@ -218,6 +252,9 @@ function changePage(page, paginationContainer, callbacks) {
   loadProjects(projectList, pagination, callbacks);
 }
 
+/**
+ * Elimina un proyecto y actualiza la lista tras la acción.
+ */
 async function handleDelete(projectId, container, paginationContainer, callbacks) {
   const confirmed = confirm('¿Desea eliminar este proyecto?');
   if (!confirmed) return;
@@ -227,6 +264,9 @@ async function handleDelete(projectId, container, paginationContainer, callbacks
   await loadProjects(container, paginationContainer, callbacks);
 }
 
+/**
+ * Cambia el estado de un proyecto y recarga la lista.
+ */
 async function handleStatusUpdate(projectId, status, container, paginationContainer, callbacks) {
   await updateProject(projectId, { status });
   await loadProjects(container, paginationContainer, callbacks);
