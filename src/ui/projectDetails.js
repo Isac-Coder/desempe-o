@@ -5,7 +5,7 @@ import { createFragment } from '../utils/helpers.js';
  * Recibe el proyecto seleccionado y un callback para regresar al dashboard.
  */
 export function renderDetails({ app, project, onBack }) {
-  app.innerHTML = '';
+  app.innerHTML = ''; // limpia el contenido actual antes de mostrar los detalles
 
   const view = createFragment(`
     <section class="card">
@@ -21,14 +21,14 @@ export function renderDetails({ app, project, onBack }) {
         <button id="backToList" class="btn secondary">Volver a proyectos</button>
       </div>
     </section>
-  `);
+  `); // genera el DOM para los detalles del proyecto
 
-  view.querySelector('#detailName').textContent = project.name;
-  view.querySelector('#detailDescription').textContent = project.description;
-  view.querySelector('#detailStatus').textContent = project.status;
-  view.querySelector('#detailResponsible').textContent = project.responsible;
-  view.querySelector('#detailCreated').textContent = new Date(project.createdAt).toLocaleString();
-  view.querySelector('#backToList').addEventListener('click', onBack);
+  view.querySelector('#detailName').textContent = project.name; // coloca el nombre del proyecto
+  view.querySelector('#detailDescription').textContent = project.description; // coloca la descripción
+  view.querySelector('#detailStatus').textContent = project.status; // coloca el estado actual
+  view.querySelector('#detailResponsible').textContent = project.responsible; // coloca el responsable
+  view.querySelector('#detailCreated').textContent = new Date(project.createdAt).toLocaleString(); // formatea la fecha de creación
+  view.querySelector('#backToList').addEventListener('click', onBack); // vuelve al dashboard cuando se hace clic
 
-  app.appendChild(view);
+  app.appendChild(view); // agrega la vista de detalles al contenedor principal
 }

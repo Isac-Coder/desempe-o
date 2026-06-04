@@ -15,5 +15,22 @@
       "role": "COLLABORATOR"
     }
   ],
-  "projects": []
+  "projects": [
+    {
+      "name": "SOY NEGRO",
+      "description": "EN LOS AÑOS 1.600 CUANDO EL TIRANO MANDO LAS CALLES DE CARTAGENA",
+      "status": "En progreso",
+      "responsible": "collaborator@test.com",
+      "createdAt": "2026-06-04T19:20:27.947Z",
+      "id": 1
+    },
+    {
+      "name": "dsfds",
+      "description": "fdsfd",
+      "status": "En progreso",
+      "responsible": "collaborator@test.com",
+      "createdAt": "2026-06-04T19:27:57.132Z",
+      "id": 2
+    }
+  ]
 }
